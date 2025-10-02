@@ -308,16 +308,25 @@
             constructor(x, y, color, targetX, targetY) {
                 this.x = x;
                 this.y = y;
-                this.vx = (Math.random() - 0.5) * 10;
-                this.vy = (Math.random() - 0.5) * 10;
+                this.startX = x;
+                this.startY = y;
+                this.vx = 0;
+                this.vy = 0;
                 this.color = color;
                 this.targetX = targetX;
                 this.targetY = targetY;
                 this.size = 3;
                 this.arrived = false;
+                this.startDelay = Math.random() * 30; // Random delay before starting
+                this.age = 0;
             }
             
             update(speed) {
+                this.age++;
+                
+                // Wait for start delay
+                if (this.age < this.startDelay) return;
+                
                 if (this.arrived) return;
                 
                 const dx = this.targetX - this.x;
@@ -429,11 +438,8 @@
                     }
                 }
                 
-                // Random starting position
-                const startX = Math.random() * canvasSize;
-                const startY = Math.random() * canvasSize;
-                
-                particles.push(new Particle(startX, startY, color, bestX, bestY));
+                // Starting position is the actual source position
+                particles.push(new Particle(x, y, color, bestX, bestY));
             }
             
             status.textContent = `Animating ${particles.length} particles...`;
@@ -443,8 +449,14 @@
             const maxFrames = 500;
             
             function animate() {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-                ctx.fillRect(0, 0, canvasSize, canvasSize);
+                // Start with black background, gradually fade
+                if (frame < 10) {
+                    ctx.fillStyle = 'rgb(0, 0, 0)';
+                    ctx.fillRect(0, 0, canvasSize, canvasSize);
+                } else {
+                    ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+                    ctx.fillRect(0, 0, canvasSize, canvasSize);
+                }
                 
                 let arrivedCount = 0;
                 
